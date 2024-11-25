@@ -10,25 +10,7 @@ import (
 )
 
 func LogPrintln(args ...interface{}) {
-
-	if !IsDevTestingMode() {
-		return
-	}
-
 	logrus.Println(append([]interface{}{"Plugin Info:"}, args...)...)
-}
-
-func LogPrintf(format string, v ...interface{}) {
-
-	if !IsDevTestingMode() {
-		return
-	}
-
-	logrus.Printf(format, v...)
-}
-
-func IsDevTestingMode() bool {
-	return os.Getenv("DEV_TEST_d6c9b463090c") == "true"
 }
 
 func GetFlywayExecutablePath() string {
