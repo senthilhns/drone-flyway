@@ -7,7 +7,6 @@ package plugin
 import (
 	"context"
 	"fmt"
-	"os"
 	"testing"
 )
 
@@ -203,11 +202,7 @@ func GetArgsForFunctionalTesting(pluginDriverPath, pluginFlywayCommand, pluginLo
 }
 
 func getDefaultPluginDriverPath() string {
-	return os.Getenv("PLUGIN_DRIVER_PATH")
-}
-
-func getDefaultPluginFlywayCommand() string {
-	return os.Getenv("PLUGIN_FLYWAY_COMMAND")
+	return ""
 }
 
 func getDefaultPluginLocations() string {
@@ -215,7 +210,7 @@ func getDefaultPluginLocations() string {
 }
 
 func getDefaultPluginCommandLineArgs() string {
-	return os.Getenv("PLUGIN_COMMAND_LINE_ARGS")
+	return ""
 }
 
 func getDefaultPluginUrl() string {
