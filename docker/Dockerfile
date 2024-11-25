@@ -1,14 +1,12 @@
-# Base image for certificates
-FROM alpine:3.6 AS alpine
-RUN apk add -U --no-cache ca-certificates && update-ca-certificates
+# Base stage for certificates
+FROM alpine:3.20 as alpine
+RUN apk add -U --no-cache ca-certificates
 
 # Builder stage for Flyway installation
-FROM alpine:3.6 AS builder
+FROM alpine:3.20 as builder
 
-RUN apk add --no-cache bash
-
-# Install necessary tools for downloading and extracting Flyway
-RUN apk add --no-cache wget tar
+# Install tools required for downloading and extracting Flyway
+RUN apk add --no-cache wget tar openjdk17-jre
 
 # Define Flyway version and installation directory
 ENV FLYWAY_VERSION=10.21.0
@@ -18,20 +16,27 @@ ENV FLYWAY_DIR=/opt/flyway-${FLYWAY_VERSION}
 RUN wget --no-check-certificate https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz && \
     tar -zxf flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz && \
     mkdir -p /opt && \
-    mv flyway-${FLYWAY_VERSION} ${FLYWAY_DIR}
+    mv flyway-${FLYWAY_VERSION} ${FLYWAY_DIR} && \
+    rm -rf ${FLYWAY_DIR}/jre  # Remove the built-in JRE
 
 # Final image stage
-FROM alpine:3.6 AS final
-ENV GODEBUG netdns=go
+FROM alpine:3.20
+RUN apk add --no-cache openjdk17-jre bash libc6-compat gcompat
+
+# Set environment variables
+ENV GODEBUG=netdns=go
+ENV FLYWAY_VERSION=10.21.0
+ENV FLYWAY_DIR=/opt/flyway-${FLYWAY_VERSION}
+ENV PATH="${FLYWAY_DIR}:${PATH}"
+ENV FLYWAY_BIN_PATH=${FLYWAY_DIR}/flyway
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Copy certificates from the alpine stage
 COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy the Flyway installation from the builder stage
 COPY --from=builder ${FLYWAY_DIR} ${FLYWAY_DIR}
-
-# Add the Flyway binary to the PATH
-ENV PATH="${FLYWAY_DIR}:${PATH}"
 
 # Copy the plugin binary
 ADD release/linux/amd64/plugin /bin/
