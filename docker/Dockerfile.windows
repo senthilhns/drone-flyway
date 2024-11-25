@@ -1,0 +1,48 @@
+# escape=`
+
+# Base stage for certificates
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 as certificates
+SHELL ["cmd", "/S", "/C"]
+
+RUN powershell -Command `
+    Add-WindowsFeature -Name RSAT-AD-PowerShell; `
+    mkdir C:\certificates; `
+    certutil -generateSSTFromWU C:\certificates\ca-certificates.sst
+
+# Builder stage for Flyway installation
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 as builder
+SHELL ["cmd", "/S", "/C"]
+
+# Define Flyway version and installation directory
+ENV FLYWAY_VERSION=10.21.0
+ENV FLYWAY_DIR=C:\flyway
+
+# Download and extract Flyway
+RUN powershell -Command `
+    Invoke-WebRequest -Uri https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${env:FLYWAY_VERSION}/flyway-commandline-${env:FLYWAY_VERSION}-windows-x64.zip -OutFile flyway.zip; `
+    Expand-Archive -Path flyway.zip -DestinationPath C:\; `
+    Rename-Item -Path C:\flyway-${env:FLYWAY_VERSION} -NewName C:\flyway; `
+    Remove-Item -Force flyway.zip
+
+# Final stage
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+SHELL ["cmd", "/S", "/C"]
+
+# Copy certificates from the certificates stage
+COPY --from=certificates C:\certificates\ca-certificates.sst C:\certificates\ca-certificates.sst
+
+# Set environment variables
+ENV FLYWAY_VERSION=10.21.0
+ENV FLYWAY_DIR=C:\flyway
+ENV PATH="%FLYWAY_DIR%;%PATH%"
+ENV JAVA_HOME=C:\flyway\jre
+ENV PATH="%JAVA_HOME%\bin;%PATH%"
+
+# Copy Flyway installation from the builder stage
+COPY --from=builder C:\flyway C:\flyway
+
+# Add the plugin binary
+ADD release/windows/amd64/plugin.exe C:\plugin.exe
+
+# Set the entrypoint to use Flyway with plugin
+ENTRYPOINT ["cmd", "/C", "C:\\plugin.exe"]

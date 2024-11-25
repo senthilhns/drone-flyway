@@ -1,0 +1,6 @@
+.env
+release/
+.idea/
+drone-flyway-runner
+local_ignore*
+
