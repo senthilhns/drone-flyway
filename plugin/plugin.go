@@ -223,7 +223,7 @@ func (p *FlywayPlugin) CheckMandatoryArgs() error {
 	for _, m := range ma {
 		if os.Getenv(m.EnvName) == "" && *m.ParamName == "" {
 			LogPrintln("Missing mandatory argument: " + m.EnvName)
-			return fmt.Errorf("Missing mandatory argument: %s", m.Hint)
+			return fmt.Errorf("Missing mandatory argument: %s (env: %s)", m.Hint, m.EnvName)
 		}
 	}
 
