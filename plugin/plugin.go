@@ -116,7 +116,7 @@ func (p *FlywayPlugin) Run() error {
 	var err error
 
 	p.ExecCommand = p.GetExecArgsStr()
-	fmt.Println("Command: ", p.ExecCommand)
+	logrus.Infof("Executing command: %s", p.ExecCommand)
 
 	cmdParts := strings.Fields(p.ExecCommand)
 	if len(cmdParts) < 2 {
