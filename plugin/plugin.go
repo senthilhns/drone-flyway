@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"log"
 	"os"
 	"os/exec"
@@ -139,11 +140,11 @@ func (p *FlywayPlugin) Run() error {
 
 	err = cmd.Run()
 	if err == nil {
-		fmt.Println(stdoutBuf.String())
-		fmt.Printf("Command execution success")
+		logrus.Println(stdoutBuf.String())
+		logrus.Infof("Command executed successfully: %s", stdoutBuf.String())
 	} else {
-		fmt.Println(stderrBuf.String())
-		fmt.Printf("Error executing command: %v\n", err.Error())
+		logrus.Println(stderrBuf.String())
+		logrus.Infof("Error executing command: %v\n", err.Error())
 	}
 
 	return nil
