@@ -144,7 +144,7 @@ func (p *FlywayPlugin) Run() error {
 		logrus.Infof("Command executed successfully: %s", stdoutBuf.String())
 	} else {
 		logrus.Println(stderrBuf.String())
-		logrus.Infof("Error executing command: %v\n", err.Error())
+		logrus.Errorf("Command execution failed: %s, error: %v", stderrBuf.String(), err)
 	}
 
 	return nil
