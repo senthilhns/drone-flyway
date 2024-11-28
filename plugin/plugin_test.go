@@ -174,6 +174,76 @@ func GetArgsForFunctionalTesting(pluginDriverPath, pluginFlywayCommand, pluginLo
 	return defaultArgs
 }
 
+func TestUnitTcMissingRequiredInputs(t *testing.T) {
+	args := GetArgsForFunctionalTesting(
+		getDefaultPluginDriverPath(),
+		"migrate",
+		getDefaultPluginLocations(),
+		getDefaultPluginCommandLineArgs(),
+		"", // missing URL
+		"", // missing username
+		"", // missing password
+	)
+
+	_, err := Exec(context.TODO(), args)
+	require.Error(t, err, "Exec should fail when required inputs (URL, username, or password) are missing")
+}
+
+func TestUnitTcWrongFlywayCommand(t *testing.T) {
+	args := GetArgsForFunctionalTesting(
+		getDefaultPluginDriverPath(),
+		"invalidCommand", // invalid Flyway command
+		getDefaultPluginLocations(),
+		getDefaultPluginCommandLineArgs(),
+		getDefaultPluginUrl(),
+		getDefaultPluginUser(),
+		getDefaultPluginPassword(),
+	)
+
+	_, err := Exec(context.TODO(), args)
+	require.Error(t, err, "Exec should fail for an invalid Flyway command")
+}
+
+func TestUnitTcWithExtraArgsVerbose(t *testing.T) {
+	args := GetArgsForFunctionalTesting(
+		getDefaultPluginDriverPath(),
+		"migrate",
+		getDefaultPluginLocations(),
+		"-X", // extra verbose argument
+		getDefaultPluginUrl(),
+		getDefaultPluginUser(),
+		getDefaultPluginPassword(),
+	)
+
+	fp, err := Exec(context.TODO(), args)
+	require.NoError(t, err, "Exec should succeed with extra verbose argument (-X)")
+
+	expectedCmd := " migrate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
+		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 -X"
+
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command with extra verbose argument. Got: %s", fp.ExecCommand)
+}
+
+func TestUnitTcWithExtraArgsQuiet(t *testing.T) {
+	args := GetArgsForFunctionalTesting(
+		getDefaultPluginDriverPath(),
+		"migrate",
+		getDefaultPluginLocations(),
+		"-q", // extra quiet argument
+		getDefaultPluginUrl(),
+		getDefaultPluginUser(),
+		getDefaultPluginPassword(),
+	)
+
+	fp, err := Exec(context.TODO(), args)
+	require.NoError(t, err, "Exec should succeed with extra quiet argument (-q)")
+
+	expectedCmd := " migrate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
+		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 -q"
+
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command with extra quiet argument. Got: %s", fp.ExecCommand)
+}
+
 func getDefaultPluginDriverPath() string {
 	return ""
 }
