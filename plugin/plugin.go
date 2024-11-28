@@ -151,28 +151,28 @@ func (p *FlywayPlugin) Run() error {
 }
 
 func (p *FlywayPlugin) GetExecArgsStr() string {
-	var execCommand string
+	var builder strings.Builder
 
-	execCommand += GetFlywayExecutablePath() + " "
-	execCommand += p.InputArgs.FlywayCommand + " "
-	execCommand += p.CommandSpecificArgs + " "
+	builder.WriteString(GetFlywayExecutablePath() + " ")
+	builder.WriteString(p.InputArgs.FlywayCommand + " ")
+	builder.WriteString(p.CommandSpecificArgs + " ")
 
 	if len(p.InputArgs.Url) > 0 {
-		execCommand += "-url=" + p.InputArgs.Url + " "
+		builder.WriteString("-url=" + p.InputArgs.Url + " ")
 	}
 	if len(p.InputArgs.UserName) > 0 {
-		execCommand += "-user=" + p.InputArgs.UserName + " "
+		builder.WriteString("-user=" + p.InputArgs.UserName + " ")
 	}
 	if len(p.InputArgs.Password) > 0 {
-		execCommand += "-password=" + p.InputArgs.Password + " "
+		builder.WriteString("-password=" + p.InputArgs.Password + " ")
 	}
 	if len(p.InputArgs.Locations) > 0 {
-		execCommand += "-locations=" + p.InputArgs.Locations + " "
+		builder.WriteString("-locations=" + p.InputArgs.Locations + " ")
 	}
 	// this should be the last
-	execCommand += p.InputArgs.CommandLineArgs
+	builder.WriteString(p.InputArgs.CommandLineArgs)
 
-	return execCommand
+	return builder.String()
 }
 
 func (p *FlywayPlugin) IsCommandValid() error {
@@ -194,12 +194,10 @@ func (p *FlywayPlugin) IsCommandValid() error {
 }
 
 func (p *FlywayPlugin) IsUnknownCommand() error {
-	_, ok := knownCommandsMap[p.InputArgs.FlywayCommand]
-	if ok {
-		return nil
+	if _, ok := knownCommandsMap[p.InputArgs.FlywayCommand]; !ok {
+		return fmt.Errorf("unknown command: %s", p.InputArgs.FlywayCommand)
 	}
-
-	return fmt.Errorf("Unknown command: %s", p.InputArgs.FlywayCommand)
+	return nil
 }
 
 func (p *FlywayPlugin) CheckMandatoryArgs() error {
