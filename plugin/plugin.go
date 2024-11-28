@@ -232,12 +232,12 @@ func (p *FlywayPlugin) CheckMandatoryArgs() error {
 	return nil
 }
 
-var knownCommandsMap = map[string]bool{
-	MigrateCommand:  true,
-	CleanCommand:    true,
-	BaselineCommand: true,
-	RepairCommand:   true,
-	ValidateCommand: true,
+var knownCommandsMap = map[string]string{
+	MigrateCommand:  "Performs database migration",
+	CleanCommand:    "Drops all objects in the configured schemas",
+	BaselineCommand: "Baselines an existing database",
+	RepairCommand:   "Repairs the schema history table",
+	ValidateCommand: "Validates the applied migrations against the available ones",
 }
 
 const (
