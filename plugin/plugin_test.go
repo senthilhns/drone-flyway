@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitTcClean(t *testing.T) {
@@ -22,16 +24,12 @@ func TestUnitTcClean(t *testing.T) {
 	)
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		fmt.Println("Error in Exec: " + err.Error())
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " clean -cleanDisabled=false  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
 		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
 
-	if fp.ExecCommand != expectedCmd {
-		t.Fail()
-	}
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
 
 func TestUnitTcBaseline(t *testing.T) {
@@ -46,16 +44,12 @@ func TestUnitTcBaseline(t *testing.T) {
 	)
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		fmt.Println("Error in Exec: " + err.Error())
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " baseline  -url=jdbc:mysql://3.4.9.2:3306/flyway_test" +
 		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
 
-	if fp.ExecCommand != expectedCmd {
-		t.Fail()
-	}
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
 
 func TestUnitTcMigrate(t *testing.T) {
@@ -70,16 +64,12 @@ func TestUnitTcMigrate(t *testing.T) {
 	)
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " migrate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
 		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
 
-	if fp.ExecCommand != expectedCmd {
-		fmt.Printf("|%s|", fp.ExecCommand)
-		t.Fail()
-	}
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
 
 func TestUnitTcRepair(t *testing.T) {
@@ -94,15 +84,12 @@ func TestUnitTcRepair(t *testing.T) {
 	)
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " repair  -url=jdbc:mysql://3.4.9.2:3306/flyway_test" +
 		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
 
-	if fp.ExecCommand != expectedCmd {
-		t.Fail()
-	}
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
 
 func TestUnitTcValidate(t *testing.T) {
@@ -117,16 +104,12 @@ func TestUnitTcValidate(t *testing.T) {
 	)
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		fmt.Println("Error in Exec: " + err.Error())
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " validate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test" +
 		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
 
-	if fp.ExecCommand != expectedCmd {
-		t.Fail()
-	}
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
 
 func TestUnitTcWithConfigFiles(t *testing.T) {
@@ -142,16 +125,11 @@ func TestUnitTcWithConfigFiles(t *testing.T) {
 	args.CommandLineArgs = "-configFiles=/harness/hns/test-resources/flyway/config1/flyway.conf"
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		fmt.Println("Error in Exec: " + err.Error())
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " migrate  -configFiles=/harness/hns/test-resources/flyway/config1/flyway.conf"
 
-	if fp.ExecCommand != expectedCmd {
-		fmt.Printf("|%s|", fp.ExecCommand)
-		t.Fail()
-	}
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
 
 func TestUnitTcWithDriverPath(t *testing.T) {
@@ -166,20 +144,15 @@ func TestUnitTcWithDriverPath(t *testing.T) {
 	)
 
 	fp, err := Exec(context.TODO(), args)
-	if err != nil {
-		fmt.Println("Error in Exec: " + err.Error())
-		t.Fail()
-	}
+	require.NoError(t, err, "Error in Exec: %v", err)
+
 	expectedCmd := " clean -cleanDisabled=false  -url=jdbc:mysql://3.4.9.2:3306/flyway_test -user=hnstest03 -password=sk89sl2@3 "
 	fmt.Println(fp.Env)
-	if fp.ExecCommand != expectedCmd {
-		fmt.Printf("|%s|", fp.ExecCommand)
-		t.Fail()
-	}
+
+	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
+
 	expectedEnv := "CLASSPATH=/harness/test/flyway-mysql-10.21.0.jar"
-	if fp.Env != expectedEnv {
-		t.Fail()
-	}
+	require.Equal(t, expectedEnv, fp.Env, "Unexpected environment variable. Got: %s", fp.Env)
 }
 
 func GetArgsForFunctionalTesting(pluginDriverPath, pluginFlywayCommand, pluginLocations,
