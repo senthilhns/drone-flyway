@@ -12,6 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testUrl = "-url=jdbc:mysql://3.4.9.2:3306/flyway_test"
+
 func TestUnitTcClean(t *testing.T) {
 	args := GetArgsForFunctionalTesting(
 		getDefaultPluginDriverPath(),
@@ -26,8 +28,8 @@ func TestUnitTcClean(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Error in Exec: %v", err)
 
-	expectedCmd := " clean -cleanDisabled=false  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
-		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
+	expectedCmd := fmt.Sprintf(" clean -cleanDisabled=false  %s "+
+		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 ", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
@@ -46,8 +48,8 @@ func TestUnitTcBaseline(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Error in Exec: %v", err)
 
-	expectedCmd := " baseline  -url=jdbc:mysql://3.4.9.2:3306/flyway_test" +
-		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
+	expectedCmd := fmt.Sprintf(" baseline  %s"+
+		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 ", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
@@ -66,8 +68,8 @@ func TestUnitTcMigrate(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Error in Exec: %v", err)
 
-	expectedCmd := " migrate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
-		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
+	expectedCmd := fmt.Sprintf(" migrate  %s "+
+		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 ", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
@@ -86,8 +88,8 @@ func TestUnitTcRepair(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Error in Exec: %v", err)
 
-	expectedCmd := " repair  -url=jdbc:mysql://3.4.9.2:3306/flyway_test" +
-		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
+	expectedCmd := fmt.Sprintf(" repair  %s"+
+		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 ", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
@@ -106,8 +108,8 @@ func TestUnitTcValidate(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Error in Exec: %v", err)
 
-	expectedCmd := " validate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test" +
-		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 "
+	expectedCmd := fmt.Sprintf(" validate  %s"+
+		" -user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 ", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
 }
@@ -146,7 +148,7 @@ func TestUnitTcWithDriverPath(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Error in Exec: %v", err)
 
-	expectedCmd := " clean -cleanDisabled=false  -url=jdbc:mysql://3.4.9.2:3306/flyway_test -user=hnstest03 -password=sk89sl2@3 "
+	expectedCmd := fmt.Sprintf(" clean -cleanDisabled=false  %s -user=hnstest03 -password=sk89sl2@3 ", testUrl)
 	fmt.Println(fp.Env)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command. Got: %s", fp.ExecCommand)
@@ -218,8 +220,8 @@ func TestUnitTcWithExtraArgsVerbose(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Exec should succeed with extra verbose argument (-X)")
 
-	expectedCmd := " migrate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
-		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 -X"
+	expectedCmd := fmt.Sprintf(" migrate  %s "+
+		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 -X", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command with extra verbose argument. Got: %s", fp.ExecCommand)
 }
@@ -238,8 +240,8 @@ func TestUnitTcWithExtraArgsQuiet(t *testing.T) {
 	fp, err := Exec(context.TODO(), args)
 	require.NoError(t, err, "Exec should succeed with extra quiet argument (-q)")
 
-	expectedCmd := " migrate  -url=jdbc:mysql://3.4.9.2:3306/flyway_test " +
-		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 -q"
+	expectedCmd := fmt.Sprintf(" migrate  %s "+
+		"-user=hnstest03 -password=sk89sl2@3 -locations=filesystem:/test/db-migrate01 -q", testUrl)
 
 	require.Equal(t, expectedCmd, fp.ExecCommand, "Unexpected command with extra quiet argument. Got: %s", fp.ExecCommand)
 }
