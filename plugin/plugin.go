@@ -29,7 +29,7 @@ type FlywayEnvPluginArgs struct {
 	Url             string `envconfig:"PLUGIN_URL"`
 	UserName        string `envconfig:"PLUGIN_USERNAME"`
 	Password        string `envconfig:"PLUGIN_PASSWORD"`
-	IsDryRun        string `envconfig:"PLUGIN_IS_DRY_RUN"`
+	IsDryRun        bool   `envconfig:"PLUGIN_IS_DRY_RUN"`
 }
 
 type FlywayPlugin struct {
@@ -51,6 +51,16 @@ type ProcessingInfo struct {
 	ExecCommand         string
 	Env                 string
 	CommandSpecificArgs string
+}
+
+//p.ExecCommand
+
+func (p FlywayPlugin) ToString() string {
+	jsonStr, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		return fmt.Sprintf("FlywayPlugin: %v", p)
+	}
+	return string(jsonStr)
 }
 
 func Exec(ctx context.Context, args Args) (FlywayPlugin, error) {
@@ -117,8 +127,7 @@ func (p *FlywayPlugin) Run() error {
 	var err error
 
 	p.ExecCommand = p.GetExecArgsStr()
-	logrus.Infof("Executing command: %s", p.ExecCommand)
-
+	logrus.Infof("Executing command: %s", p.ToString())
 	cmdParts := strings.Fields(p.ExecCommand)
 	if len(cmdParts) < 2 {
 		return fmt.Errorf("Invalid command: %s", p.ExecCommand)
@@ -134,7 +143,7 @@ func (p *FlywayPlugin) Run() error {
 		cmd.Env = append(os.Environ(), "CLASSPATH="+p.InputArgs.DriverPath)
 	}
 
-	if p.InputArgs.IsDryRun == "TRUE" {
+	if p.InputArgs.IsDryRun {
 		return nil
 	}
 
@@ -157,16 +166,16 @@ func (p *FlywayPlugin) GetExecArgsStr() string {
 	builder.WriteString(p.InputArgs.FlywayCommand + " ")
 	builder.WriteString(p.CommandSpecificArgs + " ")
 
-	if len(p.InputArgs.Url) > 0 {
+	if p.InputArgs.Url != "" {
 		builder.WriteString("-url=" + p.InputArgs.Url + " ")
 	}
-	if len(p.InputArgs.UserName) > 0 {
+	if p.InputArgs.UserName != "" {
 		builder.WriteString("-user=" + p.InputArgs.UserName + " ")
 	}
-	if len(p.InputArgs.Password) > 0 {
+	if p.InputArgs.Password != "" {
 		builder.WriteString("-password=" + p.InputArgs.Password + " ")
 	}
-	if len(p.InputArgs.Locations) > 0 {
+	if p.InputArgs.Locations != "" {
 		builder.WriteString("-locations=" + p.InputArgs.Locations + " ")
 	}
 	// this should be the last
@@ -210,18 +219,18 @@ func (p *FlywayPlugin) CheckMandatoryArgs() error {
 
 	type mandatoryArg struct {
 		EnvName   string
-		ParamName *string
+		ParamName string
 		Hint      string
 	}
 
 	ma := []mandatoryArg{
-		{"FLYWAY_URL", &args.Url, "url"},
-		{"FLYWAY_USER", &args.UserName, "username"},
-		{"FLYWAY_PASSWORD", &args.Password, "password"},
+		{"FLYWAY_URL", args.Url, "url"},
+		{"FLYWAY_USER", args.UserName, "username"},
+		{"FLYWAY_PASSWORD", args.Password, "password"},
 	}
 
 	for _, m := range ma {
-		if os.Getenv(m.EnvName) == "" && *m.ParamName == "" {
+		if os.Getenv(m.EnvName) == "" && m.ParamName == "" {
 			LogPrintln("Missing mandatory argument: " + m.EnvName)
 			return fmt.Errorf("Missing mandatory argument: %s (env: %s)", m.Hint, m.EnvName)
 		}

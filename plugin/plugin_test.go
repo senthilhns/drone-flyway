@@ -167,7 +167,7 @@ func GetArgsForFunctionalTesting(pluginDriverPath, pluginFlywayCommand, pluginLo
 			Url:             pluginUrl,
 			UserName:        pluginUser,
 			Password:        pluginPassword,
-			IsDryRun:        "TRUE",
+			IsDryRun:        true,
 		},
 	}
 
