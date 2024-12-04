@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -38,22 +37,11 @@ type FlywayPlugin struct {
 	ProcessingInfo
 }
 
-func (a *Args) ToStr() string {
-	jsonData, err := json.MarshalIndent(a, "", "  ")
-	if err != nil {
-		log.Printf("Error marshalling Args to JSON: %v", err)
-		return ""
-	}
-	return string(jsonData)
-}
-
 type ProcessingInfo struct {
 	ExecCommand         string
 	Env                 string
 	CommandSpecificArgs string
 }
-
-//p.ExecCommand
 
 func (p FlywayPlugin) ToString() string {
 	jsonStr, err := json.MarshalIndent(p, "", "  ")
@@ -127,7 +115,7 @@ func (p *FlywayPlugin) Run() error {
 	var err error
 
 	p.ExecCommand = p.GetExecArgsStr()
-	logrus.Infof("Executing command: %s", p.ToString())
+	logrus.Infof("Executing command: %s", strings.ReplaceAll(p.ExecCommand, p.InputArgs.Password, "******"))
 	cmdParts := strings.Fields(p.ExecCommand)
 	if len(cmdParts) < 2 {
 		return fmt.Errorf("Invalid command: %s", p.ExecCommand)
