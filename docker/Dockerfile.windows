@@ -37,6 +37,7 @@ ENV FLYWAY_DIR=C:\flyway
 ENV PATH="%FLYWAY_DIR%;%PATH%"
 ENV JAVA_HOME=C:\flyway\jre
 ENV PATH="%JAVA_HOME%\bin;%PATH%"
+ENV FLYWAY_BIN_PATH=C:\flyway\flyway.cmd
 
 # Copy Flyway installation from the builder stage
 COPY --from=builder C:\flyway C:\flyway
@@ -45,4 +46,4 @@ COPY --from=builder C:\flyway C:\flyway
 ADD release/windows/amd64/plugin.exe C:\plugin.exe
 
 # Set the entrypoint to use Flyway with plugin
-ENTRYPOINT ["cmd", "/C", "C:\\plugin.exe"]
+ENTRYPOINT ["C:\\plugin.exe"]
