@@ -46,4 +46,4 @@ COPY --from=builder C:\flyway C:\flyway
 ADD release/windows/amd64/plugin.exe C:\plugin.exe
 
 # Set the entrypoint to use Flyway with plugin
-ENTRYPOINT ["C:\\plugin.exe"]
+ENTRYPOINT ["cmd", "/C", "C:\\plugin.exe"]
